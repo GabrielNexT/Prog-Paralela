@@ -39,15 +39,18 @@ void split_and_send_to_workers(int *values, int* begin_idx, int* end_idx) {
 }
 
 void get_from_workers(int *values, int* begin_idx, int* end_idx) {
+  MPI_Request *requests = malloc(sizeof(MPI_Request) * world_size);
+  MPI_Status *status = malloc(sizeof(MPI_Status) * world_size);
+  
   for(int i = 1; i < world_size; i++) {
     int size;
-    MPI_Request request;
-    MPI_Status status;
-    MPI_Probe(i, 0, MPI_COMM_WORLD, &status);
-    MPI_Get_count(&status, MPI_INT, &size);
+    MPI_Probe(i, 0, MPI_COMM_WORLD, &status[i]);
+    MPI_Get_count(&status[i], MPI_INT, &size);
 
-    MPI_Irecv(values + begin_idx[i], size, MPI_INT, i, 0, MPI_COMM_WORLD, &request);
+    MPI_Irecv(values + begin_idx[i], size, MPI_INT, i, 0, MPI_COMM_WORLD, &requests[i]);
   }
+
+  MPI_Waitall(world_size - 1, requests + 1, status + 1);
 }
 
 void merge(int *values, int* begin_idx, int* end_idx) {
@@ -82,7 +85,7 @@ void master() {
   int *begin_idx = malloc(sizeof(int) * world_size), *end_idx = malloc(sizeof(int) * world_size);
 
   for(int i = 0; i < ARRAY_SIZE; i++) {
-    values[i] = rand() % 10;
+    values[i] = rand();
   }
 
   split_and_send_to_workers(values, begin_idx, end_idx);
@@ -110,8 +113,9 @@ void worker() {
 
 void print_elapsed_time(double begin) {
   double current_time = MPI_Wtime();
-  printf("Elapsed time %.9f (s)\n", current_time-begin);
+  printf("Elapsed time %.9f (s) for sorting %d length list\n", current_time-begin, ARRAY_SIZE);
 }
+
 int main(int argc, char** argv) {
     srand(time(NULL));
 

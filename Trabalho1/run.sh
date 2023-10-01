@@ -23,4 +23,4 @@ done
 
 [ -e $bin_name ] && rm $bin_name
 
-echo "Sucess!"
+echo "Success!"
