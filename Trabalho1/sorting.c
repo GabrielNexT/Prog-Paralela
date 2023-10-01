@@ -34,7 +34,7 @@ void split_and_send_to_workers(int *values, int* begin_idx, int* end_idx) {
   for(int i = 1; i < world_size; i++) {
     int cont = end_idx[i] - begin_idx[i];
     MPI_Request request;
-    MPI_Isend(values + begin_idx[i], cont, MPI_INT32_T, i, 0, MPI_COMM_WORLD, &request);
+    MPI_Isend(values + begin_idx[i], cont, MPI_INT, i, 0, MPI_COMM_WORLD, &request);
   }
 }
 
@@ -44,9 +44,9 @@ void get_from_workers(int *values, int* begin_idx, int* end_idx) {
     MPI_Request request;
     MPI_Status status;
     MPI_Probe(i, 0, MPI_COMM_WORLD, &status);
-    MPI_Get_count(&status, MPI_INT32_T, &size);
+    MPI_Get_count(&status, MPI_INT, &size);
 
-    MPI_Irecv(values + begin_idx[i], size, MPI_INT32_T, i, 0, MPI_COMM_WORLD, &request);
+    MPI_Irecv(values + begin_idx[i], size, MPI_INT, i, 0, MPI_COMM_WORLD, &request);
   }
 }
 
@@ -99,13 +99,13 @@ void worker() {
   MPI_Request request;
 
   MPI_Probe(0, 0, MPI_COMM_WORLD, &status);
-  MPI_Get_count(&status, MPI_INT32_T, &size);
+  MPI_Get_count(&status, MPI_INT, &size);
   values = malloc(sizeof(int) * size);
   source = status.MPI_SOURCE, tag = status.MPI_TAG;
 
-  MPI_Recv(values, size, MPI_INT32_T, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  MPI_Recv(values, size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   run_quick_sort(values, size);
-  MPI_Isend(values, size, MPI_INT32_T, 0, 0, MPI_COMM_WORLD, &request);
+  MPI_Isend(values, size, MPI_INT, 0, 0, MPI_COMM_WORLD, &request);
 }
 
 void print_elapsed_time(double begin) {

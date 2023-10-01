@@ -23,7 +23,7 @@ int calc(int rank) {
 void master() {
     int local_count = calc(0), global_count = 0;
 
-    MPI_Reduce(&local_count, &global_count, 1, MPI_INT32_T, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&local_count, &global_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     double pi = pi = ((double) global_count / iterations) * 4;
 
@@ -33,7 +33,7 @@ void master() {
 void worker(int rank) {
     int count = calc(rank);
 
-    MPI_Reduce(&count, &count, 1, MPI_INT32_T, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&count, &count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 }
 
 void print_elapsed_time(double begin) {
