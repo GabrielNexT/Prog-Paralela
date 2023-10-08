@@ -18,11 +18,13 @@ fi
 for i in 1 2 4 8 12 16; do
   for j in $(seq 1 5); do
     echo "Running with $i processes ($j/5)"
+    echo "-----------------------------------"
     mpirun -np $i ./$bin_name
     if [ "$?" -ne "0" ]; then
       echo "Execution error, check your code."
       exit 1
     fi
+    echo "-----------------------------------"
   done
 done
 
