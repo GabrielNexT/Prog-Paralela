@@ -4,7 +4,7 @@
 #include <time.h>
 #include <mpi.h>
 
-const int iterations = 1000000000;
+const int iterations = 1e9;
 
 int world_size;
 

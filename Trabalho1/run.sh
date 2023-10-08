@@ -16,9 +16,14 @@ if [ "$?" -ne "0" ]; then
 fi
 
 for i in 1 2 4 8 12 16; do
-  echo "Running with $i processes\n"
-  mpirun --oversubscribe -np $i $bin_name
-  echo "\n"
+  for j in $(seq 1 5); do
+    echo "Running with $i processes ($j/5)"
+    mpirun -np $i ./$bin_name
+    if [ "$?" -ne "0" ]; then
+      echo "Execution error, check your code."
+      exit 1
+    fi
+  done
 done
 
 [ -e $bin_name ] && rm $bin_name
