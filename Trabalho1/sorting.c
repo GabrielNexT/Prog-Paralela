@@ -4,7 +4,7 @@
 
 #include <mpi.h>
 
-const int ARRAY_SIZE = 1e6 * 40;
+const int ARRAY_SIZE = 40 * 1e6;
 int world_size;
 
 int compare_int (const void* a, const void* b) {
@@ -27,15 +27,11 @@ void split_and_send_to_workers(int *values, int* begin_idx, int* end_idx) {
 
   for(int i = 0, last = 0; i < world_size; i++) {
     begin_idx[i] = last;
-    end_idx[i] = last + quo + (i == world_size - 1 ? offset : 0);
+    end_idx[i] = last + quo + (i == 0 ? offset : 0);
     last += quo;
   }
 
-  for(int i = 1; i < world_size; i++) {
-    int cont = end_idx[i] - begin_idx[i];
-    MPI_Request request;
-    MPI_Isend(values + begin_idx[i], cont, MPI_INT, i, 0, MPI_COMM_WORLD, &request);
-  }
+  MPI_Scatter(values + offset, quo, MPI_INT, values, quo, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 void get_from_workers(int *values, int* begin_idx, int* end_idx) {
@@ -95,18 +91,11 @@ void master() {
 }
 
 void worker() {
-  int *values;
-  int size, source, tag;
-
-  MPI_Status status;
+  int size = ARRAY_SIZE/world_size;
+  int *values = malloc(sizeof(int) * size);
   MPI_Request request;
 
-  MPI_Probe(0, 0, MPI_COMM_WORLD, &status);
-  MPI_Get_count(&status, MPI_INT, &size);
-  values = malloc(sizeof(int) * size);
-  source = status.MPI_SOURCE, tag = status.MPI_TAG;
-
-  MPI_Recv(values, size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  MPI_Scatter(values, size, MPI_INT, values, size, MPI_INT, 0, MPI_COMM_WORLD);
   run_quick_sort(values, size);
   MPI_Isend(values, size, MPI_INT, 0, 0, MPI_COMM_WORLD, &request);
 }
