@@ -24,6 +24,7 @@ void print_array(int *array, int size) {
 
 void split_and_send_to_workers(int *values, int* begin_idx, int* end_idx) {
   int quo = ARRAY_SIZE/world_size, offset = ARRAY_SIZE % world_size;
+  int *tmp = malloc(sizeof(int) * ARRAY_SIZE); 
 
   for(int i = 0, last = 0; i < world_size; i++) {
     begin_idx[i] = last;
@@ -31,7 +32,8 @@ void split_and_send_to_workers(int *values, int* begin_idx, int* end_idx) {
     last += quo;
   }
 
-  MPI_Scatter(values + offset, quo, MPI_INT, values, quo, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Scatter(values + offset, quo, MPI_INT, tmp, quo, MPI_INT, 0, MPI_COMM_WORLD);
+  values = tmp;
 }
 
 void get_from_workers(int *values, int* begin_idx, int* end_idx) {
