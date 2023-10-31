@@ -134,7 +134,7 @@ void main()
 
 	double end_time = omp_get_wtime();
 
-	printf("Total runtime: %.15lf\n", end_time - start_time);
+	printf("%.15lf\n", end_time - start_time);
 
 	/* Program Finished */
 }
