@@ -8,7 +8,7 @@ then
 fi
 
 echo "Compiling..."
-mpicc $file_name -O3 -Wall -lm -o $bin_name
+gcc $file_name -O3 -lm -lX11 -fopenmp -o $bin_name
 
 if [ "$?" -ne "0" ]; then
   echo "Compilation error, check your code."
@@ -16,16 +16,17 @@ if [ "$?" -ne "0" ]; then
 fi
 
 for i in 1 2 4 8 12 16 32 64; do
+  echo "Running with $i threads"
+  export OMP_NUM_THREADS=$i
+  echo "-----------------------------------"
   for j in $(seq 1 5); do
-    echo "Running with $i processes ($j/5)"
-    echo "-----------------------------------"
-    mpirun -np $i ./$bin_name
+    ./$bin_name
     if [ "$?" -ne "0" ]; then
       echo "Execution error, check your code."
       exit 1
     fi
-    echo "-----------------------------------"
   done
+  echo "-----------------------------------"
 done
 
 [ -e $bin_name ] && rm $bin_name

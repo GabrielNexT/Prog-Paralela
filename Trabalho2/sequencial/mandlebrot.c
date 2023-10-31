@@ -5,6 +5,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -129,8 +130,8 @@ void main ()
 
         }
 	 
-	XFlush (display);
-	sleep (30);
+	// XFlush (display);
+	// sleep (30);
 
 	/* Program Finished */
 
