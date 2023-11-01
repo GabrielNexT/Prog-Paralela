@@ -17,7 +17,7 @@ typedef struct complextype
 
 typedef unsigned int ui;
 
-void main()
+int main()
 {
 	double start_time = omp_get_wtime();
 
