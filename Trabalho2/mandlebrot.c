@@ -7,8 +7,8 @@
 #include <math.h>
 #include <omp.h>
 
-#define X_RESN 80000 /* x resolution */
-#define Y_RESN 80000 /* y resolution */
+#define X_RESN 10000 /* x resolution */
+#define Y_RESN 10000 /* y resolution */
 
 typedef struct complextype
 {
@@ -135,5 +135,6 @@ void main()
 
 	printf("%.15lf\n", end_time - start_time);
 
+	return 0;
 	/* Program Finished */
 }
