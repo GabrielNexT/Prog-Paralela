@@ -43,16 +43,16 @@ void main()
 
 	/* connect to Xserver */
 
-	if ((display = XOpenDisplay(display_name)) == NULL)
-	{
-		fprintf(stderr, "drawon: cannot connect to X server %s\n", XDisplayName(display_name));
-		exit(-1);
-	}
+	// if ((display = XOpenDisplay(display_name)) == NULL)
+	// {
+	// 	fprintf(stderr, "drawon: cannot connect to X server %s\n", XDisplayName(display_name));
+	// 	exit(-1);
+	// }
 
 	/* get screen size */
-	screen = DefaultScreen(display);
-	display_width = DisplayWidth(display, screen);
-	display_height = DisplayHeight(display, screen);
+	// screen = DefaultScreen(display);
+	// display_width = DisplayWidth(display, screen);
+	// display_height = DisplayHeight(display, screen);
 
 	/* set window size */
 	width = X_RESN;
@@ -64,9 +64,9 @@ void main()
 
 	/* create opaque window */
 	border_width = 4;
-	win = XCreateSimpleWindow(display, RootWindow(display, screen),
-														x, y, width, height, border_width,
-														BlackPixel(display, screen), WhitePixel(display, screen));
+	// win = XCreateSimpleWindow(display, RootWindow(display, screen),
+	// 													x, y, width, height, border_width,
+	// 													BlackPixel(display, screen), WhitePixel(display, screen));
 
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
@@ -76,32 +76,33 @@ void main()
 	size_hints.min_width = 300;
 	size_hints.min_height = 300;
 
-	XSetNormalHints(display, win, &size_hints);
-	XStoreName(display, win, window_name);
+	// XSetNormalHints(display, win, &size_hints);
+	// XStoreName(display, win, window_name);
 
 	/* create graphics context */
 
-	gc = XCreateGC(display, win, valuemask, &values);
+	// gc = XCreateGC(display, win, valuemask, &values);
 
-	XSetBackground(display, gc, WhitePixel(display, screen));
-	XSetForeground(display, gc, BlackPixel(display, screen));
-	XSetLineAttributes(display, gc, 1, LineSolid, CapRound, JoinRound);
+	// XSetBackground(display, gc, WhitePixel(display, screen));
+	// XSetForeground(display, gc, BlackPixel(display, screen));
+	// XSetLineAttributes(display, gc, 1, LineSolid, CapRound, JoinRound);
 
-	attr[0].backing_store = Always;
-	attr[0].backing_planes = 1;
-	attr[0].backing_pixel = BlackPixel(display, screen);
+	// attr[0].backing_store = Always;
+	// attr[0].backing_planes = 1;
+	// attr[0].backing_pixel = BlackPixel(display, screen);
 
-	XChangeWindowAttributes(display, win, CWBackingStore | CWBackingPlanes | CWBackingPixel, attr);
+	// XChangeWindowAttributes(display, win, CWBackingStore | CWBackingPlanes | CWBackingPixel, attr);
 
-	XMapWindow(display, win);
-	XSync(display, 0);
+	// XMapWindow(display, win);
+	// XSync(display, 0);
 
 	/* Calculate and draw points */
 
-#pragma omp parallel for shared(display, win, gc)
+	int points_count = 0;
+#pragma omp parallel for shared(points_count)
 	for (int i = 0; i < X_RESN; i++)
 	{
-#pragma omp parallel for shared(display, win, gc)
+#pragma omp parallel for shared(points_count)
 		for (int j = 0; j < Y_RESN; j++)
 		{
 			Compl z, c;
@@ -124,10 +125,8 @@ void main()
 
 			if (k == 100)
 			{
-#pragma omp critical
-				{
-					XDrawPoint(display, win, gc, j, i);
-				}
+#pragma omp atomic
+				points_count++;
 			}
 		}
 	}
